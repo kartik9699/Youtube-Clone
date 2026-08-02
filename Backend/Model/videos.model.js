@@ -51,7 +51,11 @@ const videoSchema = new Schema({
     ref: "Channel", 
     required: true
   },
-  comments: Array
+  comments:[{
+    type: Schema.Types.ObjectId,
+    ref: "Comment", 
+    required: true
+  }]
 
 });
 
