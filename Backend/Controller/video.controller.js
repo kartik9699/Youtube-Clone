@@ -21,7 +21,7 @@ export async function getVideoById(req, res) {
   try {
     const { videoId } = req.params;
 
-    // 1. Find the video and increment the 'views' count by 1 atomically
+    //Find the video and increment the 'views' count by 1 atomically
     const video = await Video.findByIdAndUpdate(
       videoId,
       { $inc: { views: 1 } },
@@ -36,5 +36,36 @@ export async function getVideoById(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error fetching video" });
+  }
+}
+//update the video details
+export async function updateVideo(req, res) {
+  try {
+    const { videoId } = req.params;
+    const { title, description, thumbnailUrl } = req.body;
+    const userId = req.user.userId;
+
+    // 1. Find the video
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // 2. SECURITY: Verify the person editing is the uploader
+    if (video.uploader.toString() !== userId) {
+      return res.status(403).json({ message: "You can only edit your own videos" });
+    }
+
+    // 3. Update fields
+    video.title = title || video.title;
+    video.description = description || video.description;
+    video.thumbnailUrl = thumbnailUrl || video.thumbnailUrl;
+
+    await video.save();
+
+    res.status(200).json({ message: "Video updated successfully", video });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error updating video" });
   }
 }
