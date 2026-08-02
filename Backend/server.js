@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import { userRoutes } from './Routes/user.routes.js';
+import { videoRoutes } from './Routes/video.routes.js';
 
 const app=express();
 app.use(express.json());
@@ -18,3 +19,4 @@ app.listen(process.env.PORT,()=>{
     console.log(`server is started ${process.env.PORT}`)
 })
 userRoutes(app)
+videoRoutes(app)
