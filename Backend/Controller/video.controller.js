@@ -45,18 +45,18 @@ export async function updateVideo(req, res) {
     const { title, description, thumbnailUrl } = req.body;
     const userId = req.user.userId;
 
-    // 1. Find the video
+    // Find the video
     const video = await Video.findById(videoId);
     if (!video) {
       return res.status(404).json({ message: "Video not found" });
     }
 
-    // 2. SECURITY: Verify the person editing is the uploader
+    // Verify the person editing is the uploader
     if (video.uploader.toString() !== userId) {
       return res.status(403).json({ message: "You can only edit your own videos" });
     }
 
-    // 3. Update fields
+    // Update fields
     video.title = title || video.title;
     video.description = description || video.description;
     video.thumbnailUrl = thumbnailUrl || video.thumbnailUrl;
@@ -67,5 +67,41 @@ export async function updateVideo(req, res) {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error updating video" });
+  }
+}
+//delete video
+export async function deleteVideo(req, res) {
+  try {
+    const { videoId } = req.params;
+    const userId = req.user.userId;
+
+    // Find the video
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).json({ message: "Video not found" });
+    }
+
+    // Verify the person deleting is the uploader
+    if (video.uploader.toString() !== userId) {
+      return res.status(403).json({ message: "You can only delete your own videos" });
+    }
+
+    //Delete all comments associated with this video
+    await Comment.deleteMany({ videoId: videoId });
+
+    //Remove video ID from the Channel's array
+    if (video.channelId) {
+      await Channel.findByIdAndUpdate(video.channelId, {
+        $pull: { videos: videoId }
+      });
+    }
+
+    // delete the video 
+    await Video.findByIdAndDelete(videoId);
+
+    res.status(200).json({ message: "Video and its comments deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error deleting video" });
   }
 }
