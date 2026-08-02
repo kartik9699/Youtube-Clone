@@ -1,62 +1,61 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 const { Schema } = mongoose;
 
 const videoSchema = new Schema({
   title: {
     type: String,
-    required: true
+    required: true,
   },
   videoUrl: {
     type: String,
-    required: true
+    required: true,
   },
   thumbnailUrl: {
     type: String,
-    required: true
+    required: true,
   },
   description: {
     type: String,
-    default: ""
+    default: "",
   },
   views: {
     type: Number,
-    default: 0,   
-    min: 0
+    default: 0,
+    min: 0,
   },
   likes: {
     type: Number,
     default: 0,
-    min: 0
+    min: 0,
   },
   dislikes: {
     type: Number,
     default: 0,
-    min: 0
+    min: 0,
   },
   upload_date: {
     type: Date,
-    default: Date.now 
+    default: Date.now,
   },
-  
-  
+
   uploader: {
     type: Schema.Types.ObjectId,
     ref: "User",
-    required: true
+    required: true,
   },
-  
-  
+
   channelId: {
     type: Schema.Types.ObjectId,
-    ref: "Channel", 
-    required: true
+    ref: "Channel",
+    required: true,
   },
-  comments:[{
-    type: Schema.Types.ObjectId,
-    ref: "Comment", 
-    required: true
-  }]
-
+  comments: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+      required: true,
+    },
+  ],
 });
 
 const Video = mongoose.model("Video", videoSchema);
