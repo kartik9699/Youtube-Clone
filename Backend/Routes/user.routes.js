@@ -1,6 +1,6 @@
-import { login, register } from "../Controller/user.controller";
+import { login, register } from "../Controller/user.controller.js";
 
-function userRoutes(app) {
+export function userRoutes(app) {
     app.post("/register",register);
     app.post("/login",login);
 }

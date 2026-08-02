@@ -1,7 +1,10 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import 'dotenv/config';
+import { userRoutes } from './Routes/user.routes.js';
+
 const app=express();
+app.use(express.json());
 //Database Connection
 mongoose.connect(process.env.DB_URL)
 .then(()=>{
@@ -12,5 +15,6 @@ mongoose.connect(process.env.DB_URL)
 })
 //server created using 3000 port
 app.listen(process.env.PORT,()=>{
-    console.log("server is started")
+    console.log(`server is started ${process.env.PORT}`)
 })
+userRoutes(app)
