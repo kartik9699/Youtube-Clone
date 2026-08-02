@@ -12,7 +12,7 @@ export async function register(req, res) {
       return res.status(400).json({ message: "Email is already in use." });
     }
 
-    // Hash the password 
+    //Hash the password 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
@@ -34,6 +34,42 @@ export async function register(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
-export function login(req,res){
+export async function login(req, res) {
+  try {
+    const { email, password } = req.body;
 
+    //Find the user by their email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    //Compare the typed password with the hashed password in the database
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ message: "Invalid credentials." });
+    }
+
+    //generating jwt token 
+    const token = jwt.sign(
+      { userId: user._id }, 
+      process.env.JWT_SECRET, 
+      { expiresIn: "7d" } // Token expires in 7 days
+    );
+
+    //Send the token and user data to the frontend
+    res.status(200).json({
+      message: "Login successful!",
+      token,
+      user: {
+        _id: user._id,
+        username: user.username,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
