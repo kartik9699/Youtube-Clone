@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import 'dotenv/config';
 import { userRoutes } from './Routes/user.routes.js';
 import { videoRoutes } from './Routes/video.routes.js';
+import { commentRoutes } from './Routes/comment.routes.js';
 
 const app=express();
 app.use(express.json());
@@ -20,3 +21,4 @@ app.listen(process.env.PORT,()=>{
 })
 userRoutes(app)
 videoRoutes(app)
+commentRoutes(app)

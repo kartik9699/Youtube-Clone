@@ -26,6 +26,10 @@ const channelSchema = new Schema({
     type: String,
     default: "",
   },
+  subscriber: {
+    type: Number,
+    min:0,
+  },
 });
 
 const Channel = mongoose.model("Channel", channelSchema);
