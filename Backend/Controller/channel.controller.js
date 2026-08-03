@@ -1,3 +1,5 @@
+import Channel from "../Model/channel.model.js";
+import User from "../Model/user.model.js";
 //creating a channel 
 export async function createChannel(req, res) {
   try {
