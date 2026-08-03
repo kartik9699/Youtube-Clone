@@ -4,6 +4,7 @@ import 'dotenv/config';
 import { userRoutes } from './Routes/user.routes.js';
 import { videoRoutes } from './Routes/video.routes.js';
 import { commentRoutes } from './Routes/comment.routes.js';
+import { channelRoutes } from './Routes/channel.routes.js';
 
 const app=express();
 app.use(express.json());
@@ -19,6 +20,8 @@ mongoose.connect(process.env.DB_URL)
 app.listen(process.env.PORT,()=>{
     console.log(`server is started ${process.env.PORT}`)
 })
+//all routes calling
 userRoutes(app)
 videoRoutes(app)
 commentRoutes(app)
+channelRoutes(app)
