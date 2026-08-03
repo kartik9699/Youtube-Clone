@@ -30,3 +30,19 @@ export async function addComment(req, res) {
     res.status(500).json({ message: "Internal server error" });
   }
 }
+//fetch video comment
+export async function getVideoComments(req, res) {
+  try {
+    const { videoId } = req.params;
+
+    // Fetch comments and populate the author's details
+    const comments = await Comment.find({ videoId })
+      .populate("author", "username profilePic") // Adjust fields based on your User model
+      .sort({ createdAt: -1 }); // Newest comments first
+
+    res.status(200).json(comments);
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
