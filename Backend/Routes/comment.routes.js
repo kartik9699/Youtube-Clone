@@ -37,12 +37,68 @@ export async function getVideoComments(req, res) {
 
     // Fetch comments and populate the author's details
     const comments = await Comment.find({ videoId })
-      .populate("author", "username profilePic") // Adjust fields based on your User model
+      .populate("author", "username profilePic") 
       .sort({ createdAt: -1 }); // Newest comments first
 
     res.status(200).json(comments);
   } catch (error) {
     console.error("Error fetching comments:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+//update comments 
+export async function updateComment(req, res) {
+  try {
+    const { commentId } = req.params;
+    const { text } = req.body;
+    const userId = req.user.userId;
+
+    if (!text) {
+      return res.status(400).json({ message: "Updated text is required" });
+    }
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+    if (comment.author.toString() !== userId) {
+      return res.status(403).json({ message: "You are not authorized to edit this comment" });
+    }
+
+    comment.text = text;
+    await comment.save();
+
+    res.status(200).json({ message: "Comment updated", comment });
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+export async function deleteComment(req, res) {
+  try {
+    const { commentId } = req.params;
+    const userId = req.user.userId;
+
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).json({ message: "Comment not found" });
+    }
+
+    if (comment.author.toString() !== userId) {
+      return res.status(403).json({ message: "You are not authorized to delete this comment" });
+    }
+
+    //Remove the comment ID from the Video's comments array
+    await Video.findByIdAndUpdate(comment.videoId, {
+      $pull: { comments: commentId }
+    });
+
+    //Delete the comment document entirely
+    await Comment.findByIdAndDelete(commentId);
+
+    res.status(200).json({ message: "Comment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
