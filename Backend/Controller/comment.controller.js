@@ -1,5 +1,6 @@
 import Comment from "../Model/comment.model.js";
 import Video from "../Model/videos.model.js";
+import User from "../Model/user.model.js";
 export async function addComment(req, res) {
   try {
     const { videoId } = req.params;
@@ -35,9 +36,8 @@ export async function getVideoComments(req, res) {
   try {
     const { videoId } = req.params;
 
-    // Fetch comments and populate the author's details
+    
     const comments = await Comment.find({ videoId })
-      .populate("author", "username profilePic") 
       .sort({ createdAt: -1 }); // Newest comments first
 
     res.status(200).json(comments);

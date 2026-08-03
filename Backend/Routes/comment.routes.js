@@ -1,5 +1,5 @@
-import { addComment,getVideoComments,updateComment,deleteComment } from "../Controller/comment.controller";
-import { verifyToken } from "../middleware/Auth.middleware";
+import { addComment,getVideoComments,updateComment,deleteComment } from "../Controller/comment.controller.js";
+import { verifyToken } from "../middleware/Auth.middleware.js";
 export function commentRoutes(app) {
   app.post("/videos/:videoId/comments", verifyToken, addComment);
   app.get("/videos/:videoId/comments", getVideoComments);

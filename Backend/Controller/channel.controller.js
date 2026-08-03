@@ -13,9 +13,9 @@ export async function createChannel(req, res) {
     }
 
     const newChannel = new Channel({
-      name,
-      description,
-      bannerUrl, 
+     channelName: name,
+      description:description,
+      avatar:bannerUrl, 
       owner: userId
     });
 
@@ -34,11 +34,6 @@ export async function getChannel(req, res) {
 
     // Fetch the channel and populate its videos and the owner's details
     const channel = await Channel.findById(channelId)
-      .populate("owner", "username profilePic")
-      .populate({
-        path: "videos",
-        options: { sort: { createdAt: -1 } } // Load newest videos first
-      });
 
     if (!channel) {
       return res.status(404).json({ message: "Channel not found" });

@@ -7,7 +7,6 @@ export async function getAllVideos(req, res) {
   try {
     // Fetch all videos, sort by newest, and get the uploader's username
     const videos = await Video.find()
-      .populate("uploader", "username profilePic") 
       .sort({ createdAt: -1 });
 
     res.status(200).json(videos);
@@ -20,14 +19,14 @@ export async function getAllVideos(req, res) {
 export async function getVideoById(req, res) {
   try {
     const { videoId } = req.params;
-
+    console.log("Looking for Video ID:", `"${videoId}"`);
     //Find the video and increment the 'views' count by 1 atomically
-    const video = await Video.findByIdAndUpdate(
-      videoId,
-      { $inc: { views: 1 } },
-      { new: true } // Returns the updated document with the new view count
-    ).populate("uploader", "username profilePic");
-
+    // const video = await Video.findByIdAndUpdate(
+    //   videoId,
+    //   { $inc: { views: 1 } },
+    //   { returnDocument: "after" } // Returns the updated document with the new view count
+    // )
+    const video = await Video.findById(videoId);
     if (!video) {
       return res.status(404).json({ message: "Video not found" });
     }
