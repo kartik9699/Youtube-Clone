@@ -40,7 +40,9 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
-
+dist
+dist-ssr
+*.local
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/
 
@@ -106,7 +108,7 @@ dist
 
 # Docusaurus cache and generated files
 .docusaurus
-
+.gitignore
 # Serverless directories
 .serverless/
 
