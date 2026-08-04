@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import VideoCard from './VideoCard';
 
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -25,8 +26,11 @@ export default function Layout({ children }) {
           className={`flex-1 transition-all duration-300 p-6 bg-gray-50 min-h-[calc(100vh-4rem)] overflow-y-auto ${
             isSidebarOpen ? 'md:ml-60' : 'md:ml-18'
           }`}
-        >
-          {children}
+        ><div className='flex gap-1.5 flex-wrap'>
+          <VideoCard />
+          <VideoCard />
+          <VideoCard /></div>
+
         </main>
       </div>
     </div>
