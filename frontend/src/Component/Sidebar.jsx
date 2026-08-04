@@ -49,7 +49,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
 
       {/* --- Sidebar Base Container --- */}
       <aside 
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white overflow-y-auto pb-4 z-40 transition-all duration-300 ${
+        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white overflow-y-auto scrollbar-none pb-4 z-40 transition-all duration-300 ${
           // Mobile responsive classes
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         } ${
