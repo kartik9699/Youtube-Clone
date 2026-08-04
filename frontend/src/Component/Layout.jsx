@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import VideoCard from './VideoCard';
+import Home from './Home';
 
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -23,13 +24,11 @@ export default function Layout({ children }) {
         {/* 3. Main Content Area */}
         {/* Dynamic margin-left (ml-60 when open, ml-18 when closed on desktop) */}
         <main
-          className={`flex-1 transition-all duration-300 p-6 bg-gray-50 min-h-[calc(100vh-4rem)] overflow-y-auto ${
+          className={`flex-1 transition-all duration-300  bg-gray-50 min-h-[calc(100vh-4rem)] overflow-y-auto ${
             isSidebarOpen ? 'md:ml-60' : 'md:ml-18'
           }`}
-        ><div className='flex gap-1.5 flex-wrap'>
-          <VideoCard />
-          <VideoCard />
-          <VideoCard /></div>
+        >
+            <Home />
 
         </main>
       </div>

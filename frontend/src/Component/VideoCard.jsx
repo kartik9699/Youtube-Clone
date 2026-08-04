@@ -10,7 +10,7 @@ function VideoCard({
   duration = "14:20"
 }) {
   return (
-    <div className="flex flex-col gap-2 cursor-pointer group w-100">
+    <div className="flex flex-col gap-2 cursor-pointer group w-['100em']">
       
       {/* 1. Thumbnail Section */}
       <div className="relative w-full">

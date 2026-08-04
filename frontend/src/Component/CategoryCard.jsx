@@ -3,7 +3,7 @@ import React from 'react'
 function CategoryCard({ categories, activeCategory, onCategorySelect }) {
   return (
     // The sticky positioning keeps it fixed right below the header when you scroll down
-    <div className="flex overflow-x-auto gap-3 py-3 px-4 bg-white sticky top-16 z-30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex overflow-x-auto gap-3 py-3 px-3  bg-white fixed w-full top-16 z-30 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       
       {categories.map((category, index) => (
         <button
