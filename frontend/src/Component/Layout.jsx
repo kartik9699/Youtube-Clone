@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import VideoCard from './VideoCard';
-import Home from './Home';
-import Banner from './Banner';
-import ChannelHeader from './ChannelHeader';
 
+import Home from './Home';
+
+import axios from 'axios';
+import Channel from './Channel';
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
+const [Video,setVideo]=useState([]);
+  
+  useEffect(()=>{
+   async function fetchData() {
+    const data=await axios("http://localhost:3000/videos");
+    console.log(data.data);
+    setVideo(data.data);
+   }
+   fetchData()
+  },[])
+  
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -30,10 +40,8 @@ export default function Layout({ children }) {
             isSidebarOpen ? 'md:ml-60' : 'md:ml-18'
           }`}
         >
-            {/* <Home /> */}
-            <Banner />
-            <ChannelHeader />
-
+        <Channel Video={Video}/>
+      
         </main>
       </div>
     </div>
