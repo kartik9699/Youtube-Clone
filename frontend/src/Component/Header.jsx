@@ -5,8 +5,10 @@ import { CiSearch } from "react-icons/ci";
 import { IoMicOutline } from "react-icons/io5";
 import { MdOutlineVideoCall } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
-
+import YouTubeAuthModal from './YouTubeAuthModal';
+import { useState } from 'react';
 export default function Header({ toggleSidebar }) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
     <header className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-4 bg-white z-50 border-b border-gray-100">
       
@@ -54,10 +56,10 @@ export default function Header({ toggleSidebar }) {
           <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
         </div>
         <div className="cursor-pointer ml-2">
-          <CgProfile className="text-3xl text-gray-700" />
+          <CgProfile className="text-3xl text-gray-700" onClick={()=>setIsOpen(true)}/>
         </div>
       </div>
-
+<YouTubeAuthModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
     </header>
   );
 }

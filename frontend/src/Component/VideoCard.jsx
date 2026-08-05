@@ -1,6 +1,7 @@
-import React from 'react';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
-function VideoCard({ 
+function VideoCard({ video,
   thumbnail = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&h=281&fit=crop", 
   channelAvatar = "https://ui-avatars.com/api/?name=JS&background=0D8ABC&color=fff", 
   title = "Building a YouTube Clone with React and Tailwind CSS - Full Course", 
@@ -9,17 +10,36 @@ function VideoCard({
   timestamp = "2 months ago",
   duration = "14:20"
 }) {
+    const [Channel,setChannel]=useState();
+
+    
+
+    useEffect(() => {
+        async function fetchChannel() {
+            try {
+                const response = await axios(`http://localhost:3000/channels/${video.channelId}`);
+                // 2. Just store the actual channel data, not the whole axios response
+                console.log(response?.data?.channel); 
+                setChannel(response?.data?.channel);
+            } catch (error) {
+                console.error("Failed to fetch channel", error);
+            }
+        }
+        
+        if (video?.channelId) {
+            fetchChannel();
+        }
+    }, [video?.channelId]);
   return (
-    <div className="flex flex-col gap-2 cursor-pointer group w-['100em']">
+    <div className="flex flex-col gap-2 cursor-pointer transition-colors duration-300 hover:bg-gray-500/5  w-['100em']">
       
       {/* 1. Thumbnail Section */}
       <div className="relative w-full">
         <img 
-          src={thumbnail} 
+          src={video.thumbnailUrl} 
           alt="Video Thumbnail" 
-          // aspect-video ensures a perfect 16:9 ratio. 
           // group-hover slightly reduces the rounded corners on hover, just like YouTube!
-          className="w-full aspect-video rounded-xl object-cover group-hover:rounded-none transition-all duration-300"
+          className="w-full aspect-video rounded-xl object-cover  transition-all duration-300"
         />
         {/* Duration Badge */}
         <span className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium">
@@ -33,7 +53,7 @@ function VideoCard({
         {/* Channel Avatar */}
         <div className="shrink-0">
           <img 
-            src={channelAvatar} 
+            src={Channel?.avatar} 
             alt="Channel" 
             className="w-9 h-9 rounded-full object-cover mt-0.5 cursor-pointer"
           />
@@ -43,17 +63,17 @@ function VideoCard({
         <div className="flex flex-col">
           {/* Title */}
           <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight">
-            {title}
+            {video.title}
           </h3>
           
           {/* Channel Name */}
           <p className="text-[14px] text-gray-600 mt-1 hover:text-gray-900 transition-colors">
-            {channelName}
+            {Channel?.channelName}
           </p>
           
           {/* Views & Timestamp */}
           <div className="text-[13px] text-gray-600 flex items-center">
-            <p>{views}</p>
+            <p>{video.views}</p>
             <span className="mx-1 text-[10px]">•</span>
             <p>{timestamp}</p>
           </div>
