@@ -3,6 +3,8 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import VideoCard from './VideoCard';
 import Home from './Home';
+import Banner from './Banner';
+import ChannelHeader from './ChannelHeader';
 
 export default function Layout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -28,7 +30,9 @@ export default function Layout({ children }) {
             isSidebarOpen ? 'md:ml-60' : 'md:ml-18'
           }`}
         >
-            <Home />
+            {/* <Home /> */}
+            <Banner />
+            <ChannelHeader />
 
         </main>
       </div>
