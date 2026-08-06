@@ -1,20 +1,8 @@
-
 import './App.css'
-
-import Header from './Component/Header'
-import Layout from './Component/Layout'
-import Sidebar from './Component/Sidebar'
+import { Outlet } from 'react-router-dom'
 
 function App() {
-  
-
-  return (
-    <>
-    {/* <Header />
-    <Sidebar /> */}
-    <Layout />
-    </>
-  )
+  return <Outlet />
 }
 
 export default App

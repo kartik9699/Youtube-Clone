@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { MdHomeFilled, MdOutlineSubscriptions, MdHistory, MdOutlineWatchLater, MdOutlineSportsVolleyball } from "react-icons/md";
 import { SiYoutubeshorts } from "react-icons/si";
 import { RiPlayListLine, RiLiveLine } from "react-icons/ri";
@@ -12,59 +13,66 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
   const [activeTab, setActiveTab] = useState('Home');
 
   // Full Item Component (Expanded Sidebar)
-  const SidebarItem = ({ icon, label, isActive, onClick }) => (
-    <div 
-      onClick={onClick}
-      className={`flex items-center px-3 py-2 my-1 mx-2 rounded-lg cursor-pointer ${
-        isActive ? 'bg-gray-100 font-semibold text-black' : 'hover:bg-gray-100 text-gray-800'
-      }`}
-    >
-      <span className="text-xl mr-5">{icon}</span>
-      <span className="text-[14px] whitespace-nowrap">{label}</span>
-    </div>
-  );
+  const SidebarItem = ({ icon, label, isActive, onClick, to }) => {
+    const content = (
+      <>
+        <span className="text-xl mr-5">{icon}</span>
+        <span className="text-[14px] whitespace-nowrap">{label}</span>
+      </>
+    );
+    const className = `flex items-center px-3 py-2 my-1 mx-2 rounded-lg cursor-pointer ${isActive ? 'bg-gray-100 font-semibold text-black' : 'hover:bg-gray-100 text-gray-800'
+      }`;
+    return to ? (
+      <Link to={to} className={className} onClick={onClick}>{content}</Link>
+    ) : (
+      <div onClick={onClick} className={className}>{content}</div>
+    );
+  };
 
   // Mini Item Component (Collapsed Desktop Sidebar)
-  const MiniSidebarItem = ({ icon, label, isActive, onClick }) => (
-    <div 
-      onClick={onClick}
-      className={`flex flex-col items-center justify-center py-3 px-1 my-1 mx-1 rounded-lg cursor-pointer ${
-        isActive ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 text-gray-800'
-      }`}
-    >
-      <span className="text-xl mb-1">{icon}</span>
-      <span className="text-[10px] truncate max-w-[60px]">{label}</span>
-    </div>
-  );
+  const MiniSidebarItem = ({ icon, label, isActive, onClick, to }) => {
+    const content = (
+      <>
+        <span className="text-xl mb-1">{icon}</span>
+        <span className="text-[10px] truncate max-w-[60px]">{label}</span>
+      </>
+    );
+    const className = `flex flex-col items-center justify-center py-3 px-1 my-1 mx-2 rounded-lg cursor-pointer ${isActive ? 'bg-gray-100 text-black' : 'hover:bg-gray-100 text-gray-800'
+      }`;
+    return to ? (
+      <Link to={to} className={className} onClick={onClick}>{content}</Link>
+    ) : (
+      <div onClick={onClick} className={className}>{content}</div>
+    );
+  };
 
   return (
     <>
       {/* --- Mobile Dark Backdrop Overlay --- */}
       {isOpen && (
-        <div 
+        <div
           onClick={toggleSidebar}
           className="fixed inset-0 bg-black/50 z-40 md:hidden transition-opacity"
         />
       )}
 
       {/* --- Sidebar Base Container --- */}
-      <aside 
+      <aside
         className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white overflow-y-auto scrollbar-none pb-4 z-40 transition-all duration-300 ${
           // Mobile responsive classes
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        } ${
+          } ${
           // Desktop responsive width classes
           isOpen ? 'w-60' : 'md:w-18'
-        }`}
+          }`}
       >
-        {/* IF SIDEBAR IS EXPANDED (Mobile drawer OR Desktop open) */}
         {isOpen ? (
           <div>
             {/* Top Section */}
             <div className="border-b border-gray-200 py-3">
-              <SidebarItem icon={<MdHomeFilled />} label="Home" isActive={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
+              <SidebarItem icon={<MdHomeFilled />} label="Home" to="/" isActive={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
               <SidebarItem icon={<SiYoutubeshorts />} label="Shorts" isActive={activeTab === 'Shorts'} onClick={() => setActiveTab('Shorts')} />
-              <SidebarItem icon={<MdOutlineSubscriptions />} label="Subscriptions" isActive={activeTab === 'Subscriptions'} onClick={() => setActiveTab('Subscriptions')} />
+              <SidebarItem icon={<MdOutlineSubscriptions />} label="Subscriptions" to="/channel" isActive={activeTab === 'Subscriptions'} onClick={() => setActiveTab('Subscriptions')} />
             </div>
 
             {/* "You" Section */}
@@ -96,7 +104,7 @@ export default function Sidebar({ isOpen, toggleSidebar }) {
         ) : (
           /* IF SIDEBAR IS COLLAPSED (Desktop mini-sidebar) */
           <div className="hidden md:block py-2">
-            <MiniSidebarItem icon={<MdHomeFilled />} label="Home" isActive={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
+            <MiniSidebarItem icon={<MdHomeFilled />} label="Home" to="/" isActive={activeTab === 'Home'} onClick={() => setActiveTab('Home')} />
             <MiniSidebarItem icon={<SiYoutubeshorts />} label="Shorts" isActive={activeTab === 'Shorts'} onClick={() => setActiveTab('Shorts')} />
             <MiniSidebarItem icon={<MdOutlineSubscriptions />} label="Subscriptions" isActive={activeTab === 'Subscriptions'} onClick={() => setActiveTab('Subscriptions')} />
             <MiniSidebarItem icon={<RiPlayListLine />} label="You" isActive={activeTab === 'Playlists'} onClick={() => setActiveTab('Playlists')} />

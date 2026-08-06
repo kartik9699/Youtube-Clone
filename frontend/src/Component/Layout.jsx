@@ -1,24 +1,11 @@
-import React, { useState,useEffect } from 'react';
+import { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Sidebar from './Sidebar';
 
-import Home from './Home';
-
-import axios from 'axios';
-import Channel from './Channel';
-export default function Layout({ children }) {
+export default function Layout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-const [Video,setVideo]=useState([]);
-  
-  useEffect(()=>{
-   async function fetchData() {
-    const data=await axios("http://localhost:3000/videos");
-    console.log(data.data);
-    setVideo(data.data);
-   }
-   fetchData()
-  },[])
-  
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
@@ -40,8 +27,8 @@ const [Video,setVideo]=useState([]);
             isSidebarOpen ? 'md:ml-60' : 'md:ml-18'
           }`}
         >
-        <Channel Video={Video}/>
-      
+          {/* Nested route content renders here (Home, VideoSection, Channel) */}
+          <Outlet />
         </main>
       </div>
     </div>
