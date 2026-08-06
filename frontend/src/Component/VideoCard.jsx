@@ -35,7 +35,7 @@ return (
     <div className="flex flex-col gap-2 cursor-pointer transition-colors duration-300 hover:bg-gray-500/5  w-['100em']">
       
       {/* 1. Thumbnail Section - links to watch page */}
-      <Link to={`/watch`} className="relative w-full block">
+      <Link to={`/watch/${video._id}`} className="relative w-full block">
         <img 
           src={video.thumbnailUrl} 
           alt="Video Thumbnail" 
@@ -65,7 +65,7 @@ return (
         {/* Text Details */}
         <div className="flex flex-col">
           {/* Title */}
-          <Link to="/watch">
+<Link to={`/watch/${video._id}`}>
             <h3 className="text-base font-semibold text-gray-900 line-clamp-2 leading-tight">
               {video.title}
             </h3>

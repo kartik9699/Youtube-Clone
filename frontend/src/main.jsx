@@ -39,7 +39,7 @@ const approuter = createBrowserRouter([
             ),
           },
           {
-            path: "/watch",
+            path: "/watch/:videoID",
             element: (
               <Suspense fallback={<Loading />}>
                 <VideoSection />
