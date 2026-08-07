@@ -1,14 +1,33 @@
-import React from 'react';
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaYoutube, FaRegBell } from "react-icons/fa6";
-import { CiSearch } from "react-icons/ci";
+import { CiSearch, CiLogout } from "react-icons/ci";
 import { IoMicOutline } from "react-icons/io5";
 import { MdOutlineVideoCall } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import YouTubeAuthModal from './YouTubeAuthModal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 export default function Header({ toggleSidebar }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Load user from localStorage on mount and when auth state changes
+  useEffect(() => {
+    const syncUser = () => {
+      const stored = localStorage.getItem('user');
+      setUser(stored ? JSON.parse(stored) : null);
+    };
+    syncUser();
+    // Listen for login/logout events dispatched by the modal / logout button
+    window.addEventListener('authchange', syncUser);
+    return () => window.removeEventListener('authchange', syncUser);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    window.dispatchEvent(new Event('authchange'));
+  };
   return (
     <header className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-4 bg-white z-50 border-b border-gray-100">
       
@@ -55,9 +74,29 @@ export default function Header({ toggleSidebar }) {
           <FaRegBell className="text-xl text-gray-700" />
           <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
         </div>
-        <div className="cursor-pointer ml-2">
-          <CgProfile className="text-3xl text-gray-700" onClick={()=>setIsOpen(true)}/>
-        </div>
+{user ? (
+          <div className="flex items-center gap-2 ml-2">
+            <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">
+              <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm uppercase">
+                {user.username ? user.username[0] : 'U'}
+              </div>
+              <span className="hidden md:block text-sm font-medium text-gray-800 max-w-[120px] truncate">
+                {user.username}
+              </span>
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
+            >
+              <CiLogout className="text-2xl text-gray-700" />
+            </button>
+          </div>
+        ) : (
+          <div className="cursor-pointer ml-2">
+            <CgProfile className="text-3xl text-gray-700" onClick={()=>setIsOpen(true)}/>
+          </div>
+        )}
       </div>
 <YouTubeAuthModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
     </header>
