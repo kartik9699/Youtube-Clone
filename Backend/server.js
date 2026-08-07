@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import 'dotenv/config';
 import { userRoutes } from './Routes/user.routes.js';
 import { videoRoutes } from './Routes/video.routes.js';
@@ -8,6 +9,8 @@ import { channelRoutes } from './Routes/channel.routes.js';
 
 const app=express();
 app.use(express.json());
+// Enable CORS so the frontend (Vite dev server) can fetch data from the API
+app.use(cors());
 //Database Connection
 mongoose.connect(process.env.DB_URL)
 .then(()=>{

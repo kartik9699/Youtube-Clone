@@ -18,14 +18,17 @@ export async function addComment(req, res) {
       videoId: videoId
     });
     
-    await newComment.save();
+await newComment.save();
 
     // 2. Push the comment ID into the Video's comments array
     await Video.findByIdAndUpdate(videoId, {
       $push: { comments: newComment._id }
     });
 
-    res.status(201).json({ message: "Comment added successfully", comment: newComment });
+    // 3. Populate the author so the frontend can display it immediately
+    const populated = await newComment.populate("author", "username email avatar");
+
+    res.status(201).json({ message: "Comment added successfully", comment: populated });
   } catch (error) {
     console.error("Error adding comment:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -37,7 +40,8 @@ export async function getVideoComments(req, res) {
     const { videoId } = req.params;
 
     
-    const comments = await Comment.find({ videoId })
+const comments = await Comment.find({ videoId })
+      .populate("author", "username email avatar")
       .sort({ createdAt: -1 }); // Newest comments first
 
     res.status(200).json(comments);

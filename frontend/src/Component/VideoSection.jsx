@@ -7,6 +7,7 @@ import { SlDislike } from "react-icons/sl";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import SideVideo from './SideVideo';
+import CommentSection from './CommentSection';
 
 export default function VideoSection() {
   // 1. Initialize state with null instead of undefined
@@ -126,6 +127,9 @@ export default function VideoSection() {
       <div className="mx-4 sm:mx-0 bg-[#E6E6E6] text-black p-3 rounded-xl mt-2 text-sm">
         <p className="font-semibold">{video.views || 0} views • {formattedDate}</p>
         <p className="mt-2 text-gray-800">{video.description}</p>
+      </div>
+      <div>
+        <CommentSection />
       </div>
     </div>
     <div className='flex flex-col  sm:w-full md:w-full lg:w-[30%]'>
