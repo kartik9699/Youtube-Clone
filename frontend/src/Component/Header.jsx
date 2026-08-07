@@ -6,9 +6,12 @@ import { MdOutlineVideoCall } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import YouTubeAuthModal from './YouTubeAuthModal';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 export default function Header({ toggleSidebar }) {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   // Load user from localStorage on mount and when auth state changes
   useEffect(() => {
@@ -22,11 +25,18 @@ export default function Header({ toggleSidebar }) {
     return () => window.removeEventListener('authchange', syncUser);
   }, []);
 
-  const handleLogout = () => {
+const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
     window.dispatchEvent(new Event('authchange'));
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    const term = searchTerm.trim();
+    // Navigate to home with the search query; empty term shows all videos
+    navigate(term ? `/?q=${encodeURIComponent(term)}` : '/');
   };
   return (
     <header className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-4 bg-white z-50 border-b border-gray-100">
@@ -49,21 +59,23 @@ export default function Header({ toggleSidebar }) {
       </div>
 
       {/* 2. Middle Section: Search Bar & Mic */}
-      <div className="hidden sm:flex items-center flex-grow max-w-[600px] mx-4">
+      <form onSubmit={handleSearch} className="hidden sm:flex items-center flex-grow max-w-[600px] mx-4">
         <div className="flex w-full border border-gray-300 rounded-full overflow-hidden focus-within:border-blue-500 ml-10">
           <input 
             type="text" 
-            placeholder="Search" 
+            placeholder="Search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 outline-none text-gray-700 bg-white"
           />
-          <button className="px-5 bg-gray-50 border-l border-gray-300 hover:bg-gray-100 transition-colors">
+          <button type="submit" className="px-5 bg-gray-50 border-l border-gray-300 hover:bg-gray-100 transition-colors">
             <CiSearch className="text-2xl text-gray-700" />
           </button>
         </div>
         <div className="p-2 ml-4 bg-gray-100 hover:bg-gray-200 rounded-full cursor-pointer transition-colors">
           <IoMicOutline className="text-2xl text-gray-800" />
         </div>
-      </div>
+      </form>
 
       {/* 3. Right Section: Actions & Profile */}
       <div className="flex items-center gap-2 md:gap-4">

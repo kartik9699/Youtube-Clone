@@ -5,8 +5,13 @@ import Channel from "../Model/channel.model.js";
 //fetch all the videos
 export async function getAllVideos(req, res) {
   try {
-    // Fetch all videos, sort by newest, and get the uploader's username
-    const videos = await Video.find()
+    const { q } = req.query;
+
+    // Build a filter based on the optional search query (matches title, case-insensitive)
+    const filter = q && q.trim() ? { title: { $regex: q.trim(), $options: "i" } } : {};
+
+    // Fetch all videos, sort by newest
+    const videos = await Video.find(filter)
       .sort({ createdAt: -1 });
 
     res.status(200).json(videos);
