@@ -6,6 +6,7 @@ import { SlLike } from "react-icons/sl";
 import { SlDislike } from "react-icons/sl";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import SideVideo from './SideVideo';
 
 export default function VideoSection() {
   // 1. Initialize state with null instead of undefined
@@ -71,7 +72,8 @@ export default function VideoSection() {
     : "Unknown date";
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-4 w-[90%] md:w-[70%]">
+    <div className="flex flex-col lg:flex-row sm:flex-col">
+    <div className="flex flex-col gap-3 sm:gap-4 w-full mt-10 lg:w-[70%]">
       {/* Video Player */}
       <VideoPlayer videoUrl={video.videoUrl} />
 
@@ -125,6 +127,10 @@ export default function VideoSection() {
         <p className="font-semibold">{video.views || 0} views • {formattedDate}</p>
         <p className="mt-2 text-gray-800">{video.description}</p>
       </div>
+    </div>
+    <div className='flex flex-col  sm:w-full md:w-full lg:w-[30%]'>
+      <SideVideo />
+    </div>
     </div>
   );
 }
