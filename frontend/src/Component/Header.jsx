@@ -1,9 +1,8 @@
 import { GiHamburgerMenu } from "react-icons/gi";
 import { FaYoutube, FaRegBell } from "react-icons/fa6";
-import { CiSearch, CiLogout } from "react-icons/ci";
+import { CiSearch } from "react-icons/ci";
 import { IoMicOutline } from "react-icons/io5";
 import { MdOutlineVideoCall } from "react-icons/md";
-import { CgProfile } from "react-icons/cg";
 import YouTubeAuthModal from './YouTubeAuthModal';
 import CreateChannelModal from './CreateChannelModal';
 import UploadVideoModal from './UploadVideoModal';
@@ -15,7 +14,8 @@ export default function Header({ toggleSidebar }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+const [menuOpen, setMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [hasChannel, setHasChannel] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -72,8 +72,9 @@ export default function Header({ toggleSidebar }) {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    setUser(null);
+setUser(null);
     setMenuOpen(false);
+    setProfileMenuOpen(false);
     window.dispatchEvent(new Event('authchange'));
   };
 
@@ -159,9 +160,13 @@ export default function Header({ toggleSidebar }) {
           <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
         </div>
 
-        {user ? (
-          <div className="flex items-center gap-2 ml-2">
-            <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">
+{user ? (
+          <div
+            className="relative ml-2"
+            onMouseEnter={() => setProfileMenuOpen(true)}
+            onMouseLeave={() => setProfileMenuOpen(false)}
+          >
+            <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer">
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm uppercase">
                 {user.username ? user.username[0] : 'U'}
               </div>
@@ -169,13 +174,52 @@ export default function Header({ toggleSidebar }) {
                 {user.username}
               </span>
             </div>
-            {/* <button
-              onClick={handleLogout}
-              title="Sign out"
-              className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
-            >
-              <CiLogout className="text-2xl text-gray-700" />
-            </button> */}
+
+            {/* Profile Dropdown on hover */}
+            {profileMenuOpen && (
+              <div className="absolute right-0 top-12 w-60 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                {/* User info header */}
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900 truncate">
+                    {user.username || user.email}
+                  </p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                </div>
+
+                {hasChannel ? (
+                  <button
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      setMenuOpen(false);
+                      navigate('/channel');
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+                  >
+                    View your channel
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setProfileMenuOpen(false);
+                      setMenuOpen(false);
+                      setIsCreateOpen(true);
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+                  >
+                    Create channel
+                  </button>
+                )}
+
+                <div className="border-t border-gray-100 my-1"></div>
+
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <div className="cursor-pointer ml-2">

@@ -37,9 +37,21 @@ useEffect(() => {
     };
   }, [videoID]);
 
-  // Callback passed to CommentInput that prepends the newly added comment
+// Callback passed to CommentInput that prepends the newly added comment
   const handleAddComment = (newComment) => {
     setComments((prev) => [newComment, ...prev]);
+  };
+
+  // Replace an edited comment in the list
+  const handleEditComment = (updatedComment) => {
+    setComments((prev) =>
+      prev.map((c) => (c._id === updatedComment._id ? updatedComment : c))
+    );
+  };
+
+  // Remove a deleted comment from the list
+  const handleDeleteComment = (commentId) => {
+    setComments((prev) => prev.filter((c) => c._id !== commentId));
   };
 
   return (
@@ -57,8 +69,13 @@ useEffect(() => {
         )}
         {!loading &&
           !error &&
-          comments.map((comment) => (
-            <CommentItem key={comment._id} comment={comment} />
+comments.map((comment) => (
+            <CommentItem
+              key={comment._id}
+              comment={comment}
+              onEdit={handleEditComment}
+              onDelete={handleDeleteComment}
+            />
           ))}
       </div>
     </div>
