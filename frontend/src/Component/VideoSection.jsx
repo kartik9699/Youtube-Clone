@@ -4,7 +4,7 @@ import { RiDownloadLine } from "react-icons/ri";
 import { PiShareFat } from "react-icons/pi";
 import { SlLike } from "react-icons/sl";
 import { SlDislike } from "react-icons/sl";
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import SideVideo from './SideVideo';
 import CommentSection from './CommentSection';
@@ -76,7 +76,11 @@ export default function VideoSection() {
     <div className="flex flex-col lg:flex-row sm:flex-col">
     <div className="flex flex-col gap-3 sm:gap-4 w-full mt-10 lg:w-[70%]">
       {/* Video Player */}
-      <VideoPlayer videoUrl={video.videoUrl} />
+      <VideoPlayer
+        videoUrl={video.videoUrl}
+        title={video.title}
+        channelName={channel?.channelName}
+      />
 
       {/* Video Title */}
       <h1 className="text-lg sm:text-xl font-bold line-clamp-2 px-4 sm:px-0">
@@ -88,17 +92,21 @@ export default function VideoSection() {
 
         {/* Channel Info & Subscribe button */}
         <div className="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-3">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-600 rounded-full flex-shrink-0"></div>
+<Link to={`/channel/${channel?._id}`} className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gray-600 rounded-full flex-shrink-0">
+              {channel?.avatar && (
+                <img src={channel.avatar} alt={channel.channelName} className="w-full h-full rounded-full object-cover" />
+              )}
+            </div>
             <div className="flex flex-col">
-              <h3 className="font-semibold text-sm sm:text-base line-clamp-1">
+              <h3 className="font-semibold text-sm sm:text-base line-clamp-1 hover:text-gray-500 transition-colors">
                 {channel?.channelName || "Unknown Channel"}
               </h3>
               <p className="text-xs text-gray-400">
                 {channel?.subscriber ?? 0} subscribers
               </p>
             </div>
-          </div>
+          </Link>
           <button className="ml-2 sm:ml-4 bg-black text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-red-400 flex-shrink-0 transition-colors">
             Subscribe
           </button>

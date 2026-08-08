@@ -51,9 +51,9 @@ return (
       {/* 2. Video Details Section */}
       <div className="flex gap-3 mt-1 pr-4">
         
-        {/* Channel Avatar */}
+{/* Channel Avatar */}
         <div className="shrink-0">
-          <Link to="/channel">
+          <Link to={`/channel/${Channel?._id}`}>
             <img 
               src={Channel?.avatar} 
               alt="Channel" 
@@ -72,7 +72,7 @@ return (
           </Link>
           
           {/* Channel Name */}
-          <Link to="/channel">
+          <Link to={`/channel/${Channel?._id}`}>
             <p className="text-[14px] text-gray-600 mt-1 hover:text-gray-900 transition-colors">
               {Channel?.channelName}
             </p>

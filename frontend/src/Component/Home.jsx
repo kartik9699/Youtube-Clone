@@ -36,6 +36,14 @@ function Home() {
     fetchData()
   }, [query])
 
+  // Client-side filtering by the selected category (matches the category keyword
+  // against the video title/description, since videos don't store a category field)
+  const filteredVideos = Video.filter((video) => {
+    if (activeCategory === "All") return true;
+    const haystack = `${video.title} ${video.description || ""}`.toLowerCase();
+    return haystack.includes(activeCategory.toLowerCase());
+  });
+
   return (
     <div className="flex flex-col gap-5 w-full">
 
@@ -49,18 +57,18 @@ function Home() {
       {/* Show current search heading when searching */}
       {query.trim() && (
         <p className="px-4 text-sm text-gray-700">
-          Search results for "{query.trim()}" ({Video.length} videos)
+          Search results for "{query.trim()}" ({filteredVideos.length} videos)
         </p>
       )}
 
       {/* Main Video Grid Below the Category Bar */}
-      {Video.length === 0 ? (
+      {filteredVideos.length === 0 ? (
         <div className="p-4 text-center text-gray-500">
-          🎥 No videos found.
+          🎥 No videos found for this {activeCategory !== "All" ? `category (${activeCategory})` : 'search'}.
         </div>
       ) : (
         <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 mt-10">
-          {Video.map((video) => (
+          {filteredVideos.map((video) => (
             <VideoCard key={video._id} video={video} />
           ))}
         </div>

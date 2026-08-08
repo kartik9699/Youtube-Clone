@@ -1,47 +1,41 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import ChannelProfile from './ChannelProfile';
 
-function Channel() {
+function ChannelDetails() {
+  const { channelId } = useParams();
   const [channel, setChannel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const token = localStorage.getItem('token');
+  // The logged-in user (if any). Used to determine whether the viewer is the
+  // owner of the channel being viewed (and therefore allowed to edit/delete).
   const user = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
 
   const fetchChannel = async () => {
     setLoading(true);
     setError('');
     try {
-      if (!token || !user) {
-        setChannel(null);
-        setError('Please sign in to view your channel.');
-        return;
-      }
-      const res = await axios.get('http://localhost:3000/channels/my', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`http://localhost:3000/channels/${channelId}`);
       setChannel(res.data.channel);
     } catch (err) {
       if (err?.response?.status === 404) {
-        setChannel(null);
-        setError('You do not have a channel yet. Create one using the header button.');
+        setError('Channel not found.');
       } else {
-        setError(err?.response?.data?.message || 'Failed to load your channel.');
+        setError(err?.response?.data?.message || 'Failed to load the channel.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-useEffect(() => {
+  useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchChannel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [channelId]);
 
   if (loading) {
     return (
@@ -65,7 +59,16 @@ useEffect(() => {
     );
   }
 
-  return <ChannelProfile channel={channel} isOwner onRefresh={fetchChannel} />;
+  // Only the channel owner may edit/delete videos.
+  const isOwner = user && channel.owner && channel.owner.toString() === user._id;
+
+  return (
+    <ChannelProfile
+      channel={channel}
+      isOwner={isOwner}
+      onRefresh={fetchChannel}
+    />
+  );
 }
 
-export default Channel
+export default ChannelDetails

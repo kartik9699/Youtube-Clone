@@ -2,6 +2,44 @@ import Video from "../Model/videos.model.js";
 import User from "../Model/user.model.js";
 import Comment from "../Model/comment.model.js";
 import Channel from "../Model/channel.model.js";
+//create a new video
+export async function createVideo(req, res) {
+  try {
+    const { title, videoUrl, thumbnailUrl, description } = req.body;
+    const userId = req.user.userId;
+
+    //User must have a channel to upload a video
+    const channel = await Channel.findOne({ owner: userId });
+    if (!channel) {
+      return res.status(400).json({ message: "You must create a channel before uploading a video." });
+    }
+
+    //validate required fields
+    if (!title?.trim() || !videoUrl?.trim() || !thumbnailUrl?.trim()) {
+      return res.status(400).json({ message: "Title, video URL and thumbnail URL are required." });
+    }
+
+    const newVideo = new Video({
+      title: title.trim(),
+      videoUrl: videoUrl.trim(),
+      thumbnailUrl: thumbnailUrl.trim(),
+      description: description?.trim() || "",
+      uploader: userId,
+      channelId: channel._id,
+    });
+
+    await newVideo.save();
+
+    // Associate the video with the channel
+    channel.videos.push(newVideo._id);
+    await channel.save();
+
+    res.status(201).json({ message: "Video uploaded successfully!", video: newVideo });
+  } catch (error) {
+    console.error("Error creating video:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
 //fetch all the videos
 export async function getAllVideos(req, res) {
   try {

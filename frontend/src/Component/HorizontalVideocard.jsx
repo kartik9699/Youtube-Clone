@@ -1,54 +1,56 @@
-import React from 'react';
-import { useEffect,useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-function HorizontalVideocard ({video}) {
-const [Channel,setChannel]=useState();
-    useEffect(() => {
-        async function fetchChannel() {
-            try {
-                const response = await axios(`http://localhost:3000/channels/${video.channelId}`);
-                console.log(response?.data?.channel); 
-                setChannel(response?.data?.channel);
-            } catch (error) {
-                console.error("Failed to fetch channel", error);
-            }
-        }
-        
-        if (video?.channelId) {
-            fetchChannel();
-        }
-    }, [video?.channelId]);
+import { Link } from 'react-router-dom';
+
+function HorizontalVideocard({ video }) {
+  const [channel, setChannel] = useState();
+
+  useEffect(() => {
+    async function fetchChannel() {
+      try {
+        const response = await axios(`http://localhost:3000/channels/${video.channelId}`);
+        setChannel(response?.data?.channel);
+      } catch (error) {
+        console.error("Failed to fetch channel", error);
+      }
+    }
+    
+    if (video?.channelId) {
+      fetchChannel();
+    }
+  }, [video?.channelId]);
+
   return (
-    <div className="flex flex-col sm:w-[300px] lg:flex-row gap-3 p-3 bg-[#F6EFE9] w-full lg:w-[400px] max-w-[500px] font-sans rounded-xl">
+    <div className="flex flex-row gap-3 p-3 bg-[#F6EFE9] w-full max-w-[600px] font-sans rounded-xl hover:bg-[#ece2d8] transition-colors cursor-pointer">
+      
       {/* Thumbnail Section */}
-      <div className="relative shrink-0 w-[170px] h-[100px] sm:w-[190px] sm:h-[110px]">
+      <div className="relative shrink-0 w-36 sm:w-44 aspect-video rounded-xl overflow-hidden bg-gray-200">
         <img 
-          src={video.thumbnailUrl} 
-          alt={video.title} 
-          className="w-full h-full object-cover rounded-xl"
+          src={video?.thumbnailUrl} 
+          alt={video?.title} 
+          className="w-full h-full object-cover"
         />
-       
       </div>
 
       {/* Details Section */}
-      <div className="flex flex-col flex-1 relative py-0.5">
-        <h3 className="text-[15px] font-semibold text-gray-900 leading-tight line-clamp-3 pr-2">
-          {video.title}
+      <div className="flex flex-col flex-1 min-w-0 py-0.5"> 
+        {/* min-w-0 is required here so the title truncates properly instead of stretching the flex container */}
+        
+        <h3 className="text-sm sm:text-[15px] font-semibold text-gray-900 leading-tight line-clamp-2">
+          {video?.title}
         </h3>
         
-        <p className="text-[13px] text-gray-600 mt-1">
-          {Channel?.channelName}
-        </p>
+<Link to={`/channel/${channel?._id}`} className="text-xs sm:text-[13px] text-gray-600 mt-1.5 truncate hover:text-gray-900 transition-colors">
+          {channel?.channelName || "Loading..."}
+        </Link>
         
-        <div className="text-[13px] text-gray-600 flex items-center gap-1.5 mt-0.5">
-          {/* Outlined Play Icon */}
-          
-          <span>{video.views}</span>
-          <span className="ml-1">{}</span>
+        <div className="text-xs sm:text-[13px] text-gray-600 flex items-center gap-1.5 mt-0.5 truncate">
+          <span>{video?.views} views</span>
         </div>
       </div>
+      
     </div>
   );
-};
+}
 
 export default HorizontalVideocard;

@@ -6,12 +6,16 @@ import { MdOutlineVideoCall } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import YouTubeAuthModal from './YouTubeAuthModal';
 import CreateChannelModal from './CreateChannelModal';
+import UploadVideoModal from './UploadVideoModal';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 export default function Header({ toggleSidebar }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [hasChannel, setHasChannel] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -49,7 +53,7 @@ export default function Header({ toggleSidebar }) {
     checkChannel();
   }, [user]);
 
-  // Handle the video-call / create-channel button
+  // Handle the video-call / create-channel button (click)
   const handleCreateChannelClick = () => {
     if (!user) {
       // Not logged in -> prompt to sign in first
@@ -61,14 +65,15 @@ export default function Header({ toggleSidebar }) {
       setIsCreateOpen(true);
       return;
     }
-    // Already has a channel -> go to the channel page
-    navigate('/channel');
+    // Already has a channel -> open the dropdown menu
+    setMenuOpen((prev) => !prev);
   };
 
-const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
+    setMenuOpen(false);
     window.dispatchEvent(new Event('authchange'));
   };
 
@@ -78,6 +83,7 @@ const handleLogout = () => {
     // Navigate to home with the search query; empty term shows all videos
     navigate(term ? `/?q=${encodeURIComponent(term)}` : '/');
   };
+
   return (
     <header className="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-4 bg-white z-50 border-b border-gray-100">
       
@@ -119,18 +125,41 @@ const handleLogout = () => {
 
       {/* 3. Right Section: Actions & Profile */}
       <div className="flex items-center gap-2 md:gap-4">
-        <div
-          onClick={handleCreateChannelClick}
-          title={user ? (hasChannel ? 'Your channel' : 'Create channel') : 'Sign in to create a channel'}
-          className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
-        >
-          <MdOutlineVideoCall className="text-3xl text-gray-700" />
+        {/* Create channel / upload video dropdown */}
+        <div className="relative">
+          <div
+            onClick={handleCreateChannelClick}
+            title={user ? (hasChannel ? 'Your channel' : 'Create channel') : 'Sign in to create a channel'}
+            className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
+          >
+            <MdOutlineVideoCall className="text-3xl text-gray-700" />
+          </div>
+
+          {/* Dropdown menu when user has a channel */}
+          {menuOpen && hasChannel && user && (
+            <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+              <button
+                onClick={() => { setMenuOpen(false); navigate('/channel'); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+              >
+                View channel
+              </button>
+              <button
+                onClick={() => { setMenuOpen(false); setIsUploadOpen(true); }}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+              >
+                Add video
+              </button>
+            </div>
+          )}
         </div>
+
         <div className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
           <FaRegBell className="text-xl text-gray-700" />
           <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
         </div>
-{user ? (
+
+        {user ? (
           <div className="flex items-center gap-2 ml-2">
             <div className="flex items-center gap-2 px-2 py-1 rounded-full hover:bg-gray-100 transition-colors">
               <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-semibold text-sm uppercase">
@@ -140,24 +169,50 @@ const handleLogout = () => {
                 {user.username}
               </span>
             </div>
-            <button
+            {/* <button
               onClick={handleLogout}
               title="Sign out"
               className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
             >
               <CiLogout className="text-2xl text-gray-700" />
-            </button>
+            </button> */}
           </div>
         ) : (
           <div className="cursor-pointer ml-2">
-            <CgProfile className="text-3xl text-gray-700" onClick={()=>setIsOpen(true)}/>
+            {/* <CgProfile className="text-3xl text-gray-700" onClick={()=>setIsOpen(true)}/> */}
+            <button
+  onClick={() => setIsOpen(true)}
+  className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-blue-600 text-sm font-medium hover:bg-blue-50 transition-colors"
+>
+  {/* Standard Material outline user icon */}
+  <svg 
+    xmlns="http://www.w3.org/2000/svg" 
+    fill="none" 
+    viewBox="0 0 24 24" 
+    strokeWidth={1.5} 
+    stroke="currentColor" 
+    className="w-6 h-6"
+  >
+    <path 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" 
+    />
+  </svg>
+  Sign in
+</button>
           </div>
         )}
       </div>
-<YouTubeAuthModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
+
+      <YouTubeAuthModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
       <CreateChannelModal
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
+      />
+      <UploadVideoModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
       />
     </header>
   );

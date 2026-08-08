@@ -10,6 +10,7 @@ import Layout from './Component/Layout.jsx'
 const Home = lazy(() => import('./Component/Home'))
 const VideoSection = lazy(() => import('./Component/VideoSection'))
 const Channel = lazy(() => import('./Component/Channel'))
+const ChannelDetails = lazy(() => import('./Component/ChannelDetails'))
 
 // Loading fallback shown while a lazy chunk is fetching
 function Loading() {
@@ -46,11 +47,19 @@ const approuter = createBrowserRouter([
               </Suspense>
             ),
           },
-          {
+{
             path: "/channel",
             element: (
               <Suspense fallback={<Loading />}>
                 <Channel />
+              </Suspense>
+            ),
+          },
+          {
+            path: "/channel/:channelId",
+            element: (
+              <Suspense fallback={<Loading />}>
+                <ChannelDetails />
               </Suspense>
             ),
           },
