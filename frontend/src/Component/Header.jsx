@@ -5,11 +5,15 @@ import { IoMicOutline } from "react-icons/io5";
 import { MdOutlineVideoCall } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import YouTubeAuthModal from './YouTubeAuthModal';
+import CreateChannelModal from './CreateChannelModal';
+import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 export default function Header({ toggleSidebar }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [hasChannel, setHasChannel] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
@@ -24,6 +28,42 @@ export default function Header({ toggleSidebar }) {
     window.addEventListener('authchange', syncUser);
     return () => window.removeEventListener('authchange', syncUser);
   }, []);
+
+  // Determine whether the logged-in user already has a channel
+  useEffect(() => {
+    const checkChannel = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setHasChannel(false);
+        return;
+      }
+      try {
+        const res = await axios.get('http://localhost:3000/channels/my', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setHasChannel(!!res.data?.channel);
+      } catch {
+        setHasChannel(false);
+      }
+    };
+    checkChannel();
+  }, [user]);
+
+  // Handle the video-call / create-channel button
+  const handleCreateChannelClick = () => {
+    if (!user) {
+      // Not logged in -> prompt to sign in first
+      setIsOpen(true);
+      return;
+    }
+    if (!hasChannel) {
+      // Logged in but no channel -> open create-channel modal
+      setIsCreateOpen(true);
+      return;
+    }
+    // Already has a channel -> go to the channel page
+    navigate('/channel');
+  };
 
 const handleLogout = () => {
     localStorage.removeItem('token');
@@ -79,7 +119,11 @@ const handleLogout = () => {
 
       {/* 3. Right Section: Actions & Profile */}
       <div className="flex items-center gap-2 md:gap-4">
-        <div className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors">
+        <div
+          onClick={handleCreateChannelClick}
+          title={user ? (hasChannel ? 'Your channel' : 'Create channel') : 'Sign in to create a channel'}
+          className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
+        >
           <MdOutlineVideoCall className="text-3xl text-gray-700" />
         </div>
         <div className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
@@ -111,6 +155,10 @@ const handleLogout = () => {
         )}
       </div>
 <YouTubeAuthModal isOpen={isOpen} onClose={() => setIsOpen(false)}/>
+      <CreateChannelModal
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
     </header>
   );
 }
