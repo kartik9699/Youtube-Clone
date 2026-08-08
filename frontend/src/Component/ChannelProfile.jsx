@@ -96,7 +96,7 @@ closeEdit();
 
   return (
     <>
-      <Banner />
+      <Banner ImgUrl={channel?.avatar}/>
       <ChannelHeader channel={channel} isOwner={isOwner} />
       <ChannelTabs />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 mt-3">
