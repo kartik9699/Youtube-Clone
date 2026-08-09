@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 import Banner from './Banner';
 import ChannelHeader from './ChannelHeader';
 import ChannelTabs from './ChannelTabs';
@@ -8,13 +9,22 @@ import Toast from './Toast';
 import { FiEdit, FiTrash2, FiMoreVertical } from 'react-icons/fi';
 
 function ChannelProfile({ channel, isOwner, onRefresh }) {
+  const navigate = useNavigate();
 // Store the video currently being edited
   const [editingVideo, setEditingVideo] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', description: '', thumbnailUrl: '' });
+  const [editThumbFile, setEditThumbFile] = useState(null);
 // The video whose three-dot menu is currently open
   const [menuVideoId, setMenuVideoId] = useState(null);
   // The video pending deletion confirmation (opens the delete modal)
   const [videoToDelete, setVideoToDelete] = useState(null);
+  // --- Channel edit/delete state ---
+  // Whether the "Edit channel" modal is open
+  const [editingChannel, setEditingChannel] = useState(false);
+  // Pre-filled channel edit form
+  const [channelEditForm, setChannelEditForm] = useState({ name: '', description: '', bannerUrl: '' });
+  // Whether the "Delete channel" confirmation modal is open
+  const [deleteChannelConfirm, setDeleteChannelConfirm] = useState(false);
   // Toast notification state: { message, type } | null
   const [toast, setToast] = useState(null);
 
@@ -45,15 +55,17 @@ function ChannelProfile({ channel, isOwner, onRefresh }) {
     e.preventDefault();
     if (!editingVideo) return;
     try {
+      const formData = new FormData();
+      formData.append('title', editForm.title);
+      formData.append('description', editForm.description);
+      if (editThumbFile) formData.append('thumbnail', editThumbFile);
+
       await axios.put(
         `http://localhost:3000/videos/${editingVideo._id}`,
-        {
-          title: editForm.title,
-          description: editForm.description,
-          thumbnailUrl: editForm.thumbnailUrl,
-        },
+        formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      setEditThumbFile(null);
 closeEdit();
       if (onRefresh) await onRefresh();
       showToast('Video updated successfully.', 'success');
@@ -92,12 +104,74 @@ closeEdit();
     }
   };
 
-  const videos = channel?.videos || [];
+const videos = channel?.videos || [];
+
+  // --- Channel edit/delete handlers ---
+  const openEditChannel = () => {
+    setChannelEditForm({
+      name: channel?.channelName || '',
+      description: channel?.description || '',
+      bannerUrl: channel?.avatar || '',
+    });
+    setEditingChannel(true);
+  };
+
+  const closeEditChannel = () => {
+    setEditingChannel(false);
+  };
+
+  const handleChannelEditChange = (e) => {
+    setChannelEditForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleChannelEditSubmit = async (e) => {
+    e.preventDefault();
+    if (!channel) return;
+    try {
+      await axios.put(
+        `http://localhost:3000/channels/${channel._id}`,
+        {
+          name: channelEditForm.name,
+          description: channelEditForm.description,
+          bannerUrl: channelEditForm.bannerUrl,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setEditingChannel(false);
+      if (onRefresh) await onRefresh();
+      showToast('Channel updated successfully.', 'success');
+    } catch (err) {
+      const msg =
+        err?.response?.status === 403
+          ? 'You are not authorized to edit this channel.'
+          : err?.response?.data?.message || 'Failed to update channel.';
+      showToast(msg);
+    }
+  };
+
+  const handleDeleteChannel = async () => {
+    if (!channel) return;
+    try {
+      await axios.delete(`http://localhost:3000/channels/${channel._id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setDeleteChannelConfirm(false);
+      showToast('Channel and its videos deleted successfully.', 'success');
+      // Navigate home right away since the channel no longer exists
+      navigate('/');
+    } catch (err) {
+      const msg =
+        err?.response?.status === 403
+          ? 'You are not authorized to delete this channel.'
+          : err?.response?.data?.message || 'Failed to delete channel.';
+      showToast(msg);
+    }
+  };
 
   return (
     <>
       <Banner ImgUrl={channel?.avatar}/>
-      <ChannelHeader channel={channel} isOwner={isOwner} />
+      <ChannelHeader channel={channel} isOwner={isOwner} onEditChannel={openEditChannel} onDeleteChannel={() => setDeleteChannelConfirm(true)} />
       <ChannelTabs />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-10 mt-3">
         {videos.length === 0 ? (
@@ -209,6 +283,23 @@ closeEdit();
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Replace thumbnail (optional)
+                </label>
+                <input
+                  type="file"
+                  accept="image/*,.jpeg,.jpg,.png,.gif,.webp"
+                  onChange={(e) => setEditThumbFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-3 rounded border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow file:mr-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:px-4 file:py-2"
+                />
+                {editThumbFile && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Selected: {editThumbFile.name}
+                  </p>
+                )}
+              </div>
+
               <div className="flex items-center justify-end gap-3 pt-4">
                 <button
                   type="button"
@@ -264,9 +355,126 @@ closeEdit();
               >
                 Cancel
               </button>
-              <button
+<button
                 type="button"
                 onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700 text-white font-medium text-sm px-6 py-2.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Channel Modal */}
+      {editingChannel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative max-w-md w-full bg-white rounded-xl shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={closeEditChannel}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 p-2 rounded-full transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <h2 className="text-xl font-semibold text-gray-900 mb-6">Edit channel</h2>
+
+            <form className="space-y-5" onSubmit={handleChannelEditSubmit}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Channel name</label>
+                <input
+                  type="text"
+                  name="name"
+                  value={channelEditForm.name}
+                  onChange={handleChannelEditChange}
+                  className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-900"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  name="description"
+                  value={channelEditForm.description}
+                  onChange={handleChannelEditChange}
+                  rows={3}
+                  className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-900 resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Avatar / banner URL</label>
+                <input
+                  type="url"
+                  name="bannerUrl"
+                  value={channelEditForm.bannerUrl}
+                  onChange={handleChannelEditChange}
+                  className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow text-gray-900"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditChannel}
+                  className="text-sm font-medium text-gray-600 hover:bg-gray-100 px-4 py-2 rounded transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-6 py-2.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Save changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Channel Confirmation Modal */}
+      {deleteChannelConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="relative max-w-md w-full bg-white rounded-xl shadow-2xl p-8">
+            <button
+              onClick={() => setDeleteChannelConfirm(false)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 hover:bg-gray-100 p-2 rounded-full transition-colors"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 shrink-0 rounded-full bg-red-100 flex items-center justify-center">
+                <FiTrash2 className="text-red-600" size={22} />
+              </div>
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold text-gray-900">Delete channel?</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Are you sure you want to permanently delete "
+                  <span className="font-medium text-gray-800">{channel?.channelName}</span>"?
+                  This will also delete all of its videos and comments. This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-6">
+              <button
+                type="button"
+                onClick={() => setDeleteChannelConfirm(false)}
+                className="text-sm font-medium text-gray-600 hover:bg-gray-100 px-4 py-2 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteChannel}
                 className="bg-red-600 hover:bg-red-700 text-white font-medium text-sm px-6 py-2.5 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
               >
                 Delete

@@ -53,18 +53,8 @@ const [menuOpen, setMenuOpen] = useState(false);
     checkChannel();
   }, [user]);
 
-  // Handle the video-call / create-channel button (click)
+// Handle the video-call / create-channel button (click)
   const handleCreateChannelClick = () => {
-    if (!user) {
-      // Not logged in -> prompt to sign in first
-      setIsOpen(true);
-      return;
-    }
-    if (!hasChannel) {
-      // Logged in but no channel -> open create-channel modal
-      setIsCreateOpen(true);
-      return;
-    }
     // Already has a channel -> open the dropdown menu
     setMenuOpen((prev) => !prev);
   };
@@ -126,39 +116,56 @@ setUser(null);
 
       {/* 3. Right Section: Actions & Profile */}
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Create channel / upload video dropdown */}
-        <div className="relative">
-          <div
-            onClick={handleCreateChannelClick}
-            title={user ? (hasChannel ? 'Your channel' : 'Create channel') : 'Sign in to create a channel'}
-            className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
-          >
-            <MdOutlineVideoCall className="text-3xl text-gray-700" />
+{/* Create channel / upload video dropdown - only shown when logged in */}
+        {user && (
+          <div className="relative">
+            {hasChannel ? (
+              /* Logged in & has channel -> video-call button with Add video dropdown */
+              <div
+                onClick={handleCreateChannelClick}
+                title="Your channel"
+                className="hidden md:block p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors"
+              >
+                <MdOutlineVideoCall className="text-3xl text-gray-700" />
+              </div>
+            ) : (
+              /* Logged in but no channel -> Create channel button */
+              <button
+                onClick={() => setIsCreateOpen(true)}
+                title="Create channel"
+                className="hidden md:flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-full text-blue-600 text-sm font-medium hover:bg-blue-50 transition-colors"
+              >
+                <MdOutlineVideoCall className="text-2xl text-gray-700" />
+                Create channel
+              </button>
+            )}
+
+            {/* Dropdown menu when user has a channel */}
+            {menuOpen && hasChannel && user && (
+              <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                <button
+                  onClick={() => { setMenuOpen(false); navigate('/channel'); }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+                >
+                  View channel
+                </button>
+                <button
+                  onClick={() => { setMenuOpen(false); setIsUploadOpen(true); }}
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
+                >
+                  Add video
+                </button>
+              </div>
+            )}
           </div>
+        )}
 
-          {/* Dropdown menu when user has a channel */}
-          {menuOpen && hasChannel && user && (
-            <div className="absolute right-0 top-12 w-56 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
-              <button
-                onClick={() => { setMenuOpen(false); navigate('/channel'); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
-              >
-                View channel
-              </button>
-              <button
-                onClick={() => { setMenuOpen(false); setIsUploadOpen(true); }}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-800 hover:bg-gray-100 transition-colors"
-              >
-                Add video
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
-          <FaRegBell className="text-xl text-gray-700" />
-          <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
-        </div>
+{user && (
+          <div className="p-2 hover:bg-gray-100 rounded-full cursor-pointer transition-colors relative">
+            <FaRegBell className="text-xl text-gray-700" />
+            <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] rounded-full px-1">9+</span>
+          </div>
+        )}
 
 {user ? (
           <div

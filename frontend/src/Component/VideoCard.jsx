@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { resolveMediaUrl } from '../Utils/videoUrl';
 
 function VideoCard({ video,
   thumbnail = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&h=281&fit=crop", 
@@ -37,7 +38,7 @@ return (
       {/* 1. Thumbnail Section - links to watch page */}
       <Link to={`/watch/${video._id}`} className="relative w-full block">
         <img 
-          src={video.thumbnailUrl} 
+          src={resolveMediaUrl(video.thumbnailUrl)} 
           alt="Video Thumbnail" 
           // group-hover slightly reduces the rounded corners on hover, just like YouTube!
           className="w-full aspect-video rounded-xl object-cover  transition-all duration-300"

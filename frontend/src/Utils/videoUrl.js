@@ -1,4 +1,44 @@
 /**
+ * The backend base URL where uploaded media files are served from.
+ */
+export const MEDIA_BASE_URL = "http://localhost:3000";
+
+/**
+ * Resolve a stored media path/URL into a fully-qualified URL that the
+ * browser can load. Uploaded files are saved as relative paths like
+ * "/uploads/videos/xxx.mp4" or "/uploads/thumbnails/xxx.jpg", so they need
+ * the backend origin prepended. External URLs (http/https) are passed
+ * through unchanged.
+ *
+ * @param {string} url - The raw media URL or path stored in the DB.
+ * @returns {string} A fully-qualified, loadable URL (or empty string if none).
+ */
+export function resolveMediaUrl(url) {
+  if (!url || typeof url !== "string") return "";
+  const trimmed = url.trim();
+  if (!trimmed) return "";
+
+  // Local uploaded file path (e.g. /uploads/...)
+  if (trimmed.startsWith("/uploads/")) {
+    return `${MEDIA_BASE_URL}${trimmed}`;
+  }
+
+  // Already a full http(s) URL, blob, data, or relative file path
+  if (
+    /^https?:\/\//i.test(trimmed) ||
+    trimmed.startsWith("blob:") ||
+    trimmed.startsWith("data:") ||
+    trimmed.startsWith("../") ||
+    trimmed.startsWith("./") ||
+    trimmed.startsWith("/")
+  ) {
+    return trimmed;
+  }
+
+  return trimmed;
+}
+
+/**
  * Extract a YouTube video ID from any common YouTube URL format.
  * Supports watch?v=, youtu.be, shorts, embed, live, v/, mobile,
  * youtube-nocookie, and bare 11-char video IDs.

@@ -4,8 +4,8 @@ import { FiUpload } from 'react-icons/fi';
 
 const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
   const [title, setTitle] = useState('');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [thumbnailUrl, setThumbnailUrl] = useState('');
+  const [videoFile, setVideoFile] = useState(null);
+  const [thumbFile, setThumbFile] = useState(null);
   const [description, setDescription] = useState('');
 
   // UI state
@@ -14,8 +14,8 @@ const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
 
   const resetForm = () => {
     setTitle('');
-    setVideoUrl('');
-    setThumbnailUrl('');
+    setVideoFile(null);
+    setThumbFile(null);
     setDescription('');
     setError('');
   };
@@ -33,12 +33,12 @@ const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
       setError('Video title is required.');
       return;
     }
-    if (!videoUrl.trim()) {
-      setError('Video URL is required.');
+    if (!videoFile) {
+      setError('Please select a video file to upload.');
       return;
     }
-    if (!thumbnailUrl.trim()) {
-      setError('Thumbnail URL is required.');
+    if (!thumbFile) {
+      setError('Please select a thumbnail image file.');
       return;
     }
 
@@ -50,15 +50,22 @@ const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
 
     setLoading(true);
     try {
+      // Build a multipart/form-data payload for multer
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('description', description.trim());
+      formData.append('video', videoFile);
+      formData.append('thumbnail', thumbFile);
+
       const { data } = await axios.post(
         'http://localhost:3000/videos',
+        formData,
         {
-          title: title.trim(),
-          videoUrl: videoUrl.trim(),
-          thumbnailUrl: thumbnailUrl.trim(),
-          description: description.trim(),
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
       );
       if (onUploaded) onUploaded(data.video);
       handleClose();
@@ -104,7 +111,7 @@ const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
             )}
 
             {/* Form */}
-            <form className="space-y-5" onSubmit={handleSubmit}>
+            <form className="space-y-5" onSubmit={handleSubmit} encType="multipart/form-data">
               {/* Title */}
               <div>
                 <input
@@ -117,31 +124,42 @@ const UploadVideoModal = ({ isOpen, onClose, onUploaded }) => {
                 />
               </div>
 
-              {/* Video URL */}
+              {/* Video File */}
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Video file
+                </label>
                 <input
-                  type="url"
-                  value={videoUrl}
-                  onChange={(e) => setVideoUrl(e.target.value)}
-                  placeholder="Video URL (e.g. YouTube)" 
-                  className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow placeholder-gray-500 text-gray-900"
+                  type="file"
+                  accept="video/*,.mp4,.webm,.ogg,.mov,.m4v,.mkv"
+                  onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-3 rounded border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow file:mr-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:px-4 file:py-2"
                   required
                 />
                 <p className="text-xs text-gray-500 mt-2">
-                  Paste a video URL to play in the player (any URL supported by react-player).
+                  {videoFile
+                    ? `Selected: ${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(2)} MB)`
+                    : 'Choose an MP4, WebM, OGG, MOV or MKV file from your device.'}
                 </p>
               </div>
 
-              {/* Thumbnail URL */}
+              {/* Thumbnail File */}
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Thumbnail image
+                </label>
                 <input
-                  type="url"
-                  value={thumbnailUrl}
-                  onChange={(e) => setThumbnailUrl(e.target.value)}
-                  placeholder="Thumbnail image URL"
-                  className="w-full px-4 py-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow placeholder-gray-500 text-gray-900"
+                  type="file"
+                  accept="image/*,.jpeg,.jpg,.png,.gif,.webp"
+                  onChange={(e) => setThumbFile(e.target.files?.[0] || null)}
+                  className="w-full px-4 py-3 rounded border border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow file:mr-3 file:rounded file:border-0 file:bg-blue-600 file:text-white file:px-4 file:py-2"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-2">
+                  {thumbFile
+                    ? `Selected: ${thumbFile.name}`
+                    : 'Choose a JPG, PNG, GIF or WebP image for the thumbnail.'}
+                </p>
               </div>
 
               {/* Description */}

@@ -5,7 +5,7 @@ import Channel from "../Model/channel.model.js";
 //create a new video
 export async function createVideo(req, res) {
   try {
-    const { title, videoUrl, thumbnailUrl, description } = req.body;
+    const { title, description } = req.body;
     const userId = req.user.userId;
 
     //User must have a channel to upload a video
@@ -14,15 +14,26 @@ export async function createVideo(req, res) {
       return res.status(400).json({ message: "You must create a channel before uploading a video." });
     }
 
+    // The uploaded files are provided by the multer middleware
+    const videoFile = req.files?.video?.[0];
+    const thumbFile = req.files?.thumbnail?.[0];
+
+    // Build the public URLs for the uploaded files
+    const videoUrl = videoFile ? `/uploads/videos/${videoFile.filename}` : "";
+    const thumbnailUrl = thumbFile ? `/uploads/thumbnails/${thumbFile.filename}` : "";
+
     //validate required fields
-    if (!title?.trim() || !videoUrl?.trim() || !thumbnailUrl?.trim()) {
-      return res.status(400).json({ message: "Title, video URL and thumbnail URL are required." });
+    if (!title?.trim() || !videoUrl) {
+      return res.status(400).json({ message: "Title and a video file are required." });
+    }
+    if (!thumbnailUrl) {
+      return res.status(400).json({ message: "A thumbnail image file is required." });
     }
 
     const newVideo = new Video({
       title: title.trim(),
-      videoUrl: videoUrl.trim(),
-      thumbnailUrl: thumbnailUrl.trim(),
+      videoUrl,
+      thumbnailUrl,
       description: description?.trim() || "",
       uploader: userId,
       channelId: channel._id,
@@ -102,6 +113,18 @@ export async function updateVideo(req, res) {
     video.title = title || video.title;
     video.description = description || video.description;
     video.thumbnailUrl = thumbnailUrl || video.thumbnailUrl;
+
+    // If a new thumbnail file was uploaded, use it
+    const thumbFile = req.files?.thumbnail?.[0];
+    if (thumbFile) {
+      video.thumbnailUrl = `/uploads/thumbnails/${thumbFile.filename}`;
+    }
+
+    // If a new video file was uploaded, use it
+    const videoFile = req.files?.video?.[0];
+    if (videoFile) {
+      video.videoUrl = `/uploads/videos/${videoFile.filename}`;
+    }
 
     await video.save();
 

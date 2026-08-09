@@ -1,3 +1,9 @@
+# Uploaded media files (multer storage)
+Backend/uploads/videos/*
+Backend/uploads/thumbnails/*
+!Backend/uploads/videos/.gitkeep
+!Backend/uploads/thumbnails/.gitkeep
+
 # Logs
 logs
 *.log
