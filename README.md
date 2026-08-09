@@ -2,6 +2,7 @@
 Youtube Clone 
 A full-stack video streaming and sharing platform built using the MERN stack.
 github Link:https://github.com/kartik9699/Youtube-Clone
+Video Link:https://drive.google.com/file/d/1u2JDrAxsKe7HRTGM2l5zywRVsPjrkzNH/view?usp=drive_link
 
 ## Features
 
