@@ -2,10 +2,11 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import CategoryCard from './CategoryCard';
 import HorizontalVideocard from './HorizontalVideocard';
+import VideoCard from './VideoCard'; // Ensure you import your VideoCard component
 
 function SideVideo() {
   const [activeCategory, setActiveCategory] = useState("All");
-  const [videos, setVideos] = useState([]); // Changed to lowercase 'videos' for convention
+  const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,10 +34,7 @@ function SideVideo() {
 
   return (
     <div>
-      
       <div className="flex gap-5 w-full">
-      
-        
         <CategoryCard 
           categories={categoriesData}
           activeCategory={activeCategory}
@@ -49,12 +47,21 @@ function SideVideo() {
 
         {/* Main Video Grid Below the Category Bar */}
         {!loading && !error && (
-          <div className="p-4 justify-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-1 gap-x-2 gap-y-2 mt-10">
+          <div className="p-4 justify-center grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-1 gap-x-2 gap-y-2 mt-10 w-full">
             {videos.map((video) => (
-              <HorizontalVideocard 
-                key={video._id || video.id} 
-                video={video} 
-              />
+              <React.Fragment key={video._id || video.id}>
+                
+                {/* Mobile, sm, and md screens: Show VideoCard, hide on lg and above */}
+                <div className="block lg:hidden w-full">
+                  <VideoCard video={video} />
+                </div>
+
+                {/* lg and xl screens: Show HorizontalVideocard, hide on smaller screens */}
+                <div className="hidden lg:block w-full">
+                  <HorizontalVideocard video={video} />
+                </div>
+
+              </React.Fragment>
             ))}
           </div>
         )}
