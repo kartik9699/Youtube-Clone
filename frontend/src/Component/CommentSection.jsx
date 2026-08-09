@@ -35,7 +35,7 @@ useEffect(() => {
     return () => {
       mounted = false;
     };
-  }, [videoID]);
+  }, [videoID,comments]);
 
 // Callback passed to CommentInput that prepends the newly added comment
   const handleAddComment = (newComment) => {

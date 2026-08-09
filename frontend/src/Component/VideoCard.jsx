@@ -43,10 +43,7 @@ return (
           // group-hover slightly reduces the rounded corners on hover, just like YouTube!
           className="w-full aspect-video rounded-xl object-cover  transition-all duration-300"
         />
-        {/* Duration Badge */}
-        <span className="absolute bottom-1.5 right-1.5 bg-black/80 text-white text-xs px-1.5 py-0.5 rounded font-medium">
-          {duration}
-        </span>
+        
       </Link>
 
       {/* 2. Video Details Section */}

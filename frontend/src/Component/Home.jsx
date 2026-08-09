@@ -34,7 +34,7 @@ function Home() {
       setVideo(data.data);
     }
     fetchData()
-  }, [query])
+  }, [query,Video])
 
   // Client-side filtering by the selected category (matches the category keyword
   // against the video title/description, since videos don't store a category field)

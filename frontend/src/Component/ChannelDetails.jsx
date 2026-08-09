@@ -35,7 +35,7 @@ function ChannelDetails() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchChannel();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId]);
+  }, [channelId,channel]);
 
   if (loading) {
     return (
