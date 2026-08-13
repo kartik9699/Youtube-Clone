@@ -4,13 +4,9 @@ import { Link } from 'react-router-dom';
 import { resolveMediaUrl } from '../Utils/videoUrl';
 
 function VideoCard({ video,
-  thumbnail = "https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=500&h=281&fit=crop", 
-  channelAvatar = "https://ui-avatars.com/api/?name=JS&background=0D8ABC&color=fff", 
-  title = "Building a YouTube Clone with React and Tailwind CSS - Full Course", 
-  channelName = "Code with AI", 
-  views = "120K views", 
+
   timestamp = "2 months ago",
-  duration = "14:20"
+
 }) {
     const [Channel,setChannel]=useState();
 
@@ -51,13 +47,13 @@ return (
         
 {/* Channel Avatar */}
         <div className="shrink-0">
-          <Link to={`/channel/${Channel?._id}`}>
+          
             <img 
               src={Channel?.avatar} 
               alt="Channel" 
               className="w-9 h-9 rounded-full object-cover mt-0.5 cursor-pointer"
             />
-          </Link>
+          
         </div>
         
         {/* Text Details */}
@@ -70,11 +66,11 @@ return (
           </Link>
           
           {/* Channel Name */}
-          <Link to={`/channel/${Channel?._id}`}>
+          
             <p className="text-[14px] text-gray-600 mt-1 hover:text-gray-900 transition-colors">
               {Channel?.channelName}
             </p>
-          </Link>
+          
           
           {/* Views & Timestamp */}
           <div className="text-[13px] text-gray-600 flex items-center">

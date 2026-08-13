@@ -38,7 +38,7 @@ export default function VideoSection() {
     if (videoID) {
       fetchVideoDetails();
     }
-  }, [videoID]);
+  }, [videoID,channel]);
 
   // 4. Fetch the channel details once we have the video's channelId
   useEffect(() => {
